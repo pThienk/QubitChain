@@ -96,8 +96,8 @@ function encode_data(data::DataFrame, type::Symbol, col_headers::String...)::Uni
         end
         extracted_data::Vector = []
          
-        for col ∈ Symbol.(col_headers) 
-            push!(extracted_data, data[2:end, col])
+        for col ∈ Symbol.(col_headers)
+            push!(extracted_data, data[1:end, col])
         end
 
         return Tuple(extracted_data)

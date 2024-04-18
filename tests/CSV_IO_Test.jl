@@ -17,4 +17,10 @@ q_chain::QChain = QChain(qubits = qubits, N = N, boundary_cond = boundary_cond, 
 
 save_chain(q_chain; save="C:/Users/Porpun/OneDrive/Desktop/QubitChain/save_data/tests/", inc_raw_t=false)
 
+readline()
+
+delta, J, = load_parameters("C:/Users/Porpun/OneDrive/Desktop/QubitChain/save_data/tests/qubit_chain_param_id-162991.csv", "delta", "J")
+
+println(join(delta, ","))
+
 #= Works as intended =#

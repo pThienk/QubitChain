@@ -178,7 +178,7 @@ end
 function load_parameters(filename::String, col_headers::String...; ret_type::Symbol=:array)::Union{Tuple, DataFrame}
     data_table::DataFrame = read_from_csv(filename)
 
-    if isempty(col_headers)
+    if !isempty(col_headers)
         if ret_type == :dataframe
             return data_table
         elseif ret_type == :array
