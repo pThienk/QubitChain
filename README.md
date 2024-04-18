@@ -4,6 +4,7 @@ A Julia module for the simulation of qubit chains (in one dimension), in partial
 TODO:
 
 -Create ploting system
+
 -Somehow integrate with Python for animation (or not?)
 
 -Optimize certain algorithm more
