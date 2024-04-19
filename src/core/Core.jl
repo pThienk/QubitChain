@@ -9,7 +9,7 @@ const σz::Matrix{Complex{Float64}} = [1 0; 0 -1]
 
 const h::Float64 = 6.62607015e-34 # J ∘ S
 
-const ħ::Float64 = h/2π
+const ħ::Float64 = 1.0 # h/2π J ∘ S
 
 const PARAM_RET_IND::Int64 = 1
 
@@ -97,7 +97,7 @@ function encode_data(data::DataFrame, type::Symbol, col_headers::String...)::Uni
         extracted_data::Vector = []
          
         for col ∈ Symbol.(col_headers)
-            push!(extracted_data, data[1:end, col])
+            push!(extracted_data, (data[1:end, col] |> skipmissing |> collect))
         end
 
         return Tuple(extracted_data)

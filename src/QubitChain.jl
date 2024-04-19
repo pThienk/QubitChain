@@ -21,6 +21,9 @@ include("IO/CSVFile.jl")
 # Includes interface functions
 include("core/Interface.jl")
 
+# Includes the plotting sub-module with plotting functions call
+include("visualization/PlotChain.jl")
+
 
 end # module QubitChain
 
