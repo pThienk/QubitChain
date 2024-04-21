@@ -189,7 +189,7 @@ function load_parameters(filename::String, col_headers::String...; ret_type::Sym
     end
 end
 
-function visualize(q_chain::QChain; type::Symbol=:graph, save::String="", plot_settings::NamedTuple=())
+function visualize(q_chain::QChain; type::Symbol=:graph, save::String="", plot_settings...)
     # type = graph, bloch(?), animation(?)
 
 end
