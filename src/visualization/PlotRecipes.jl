@@ -47,10 +47,10 @@ function param_to_scatter_arr(param_data::Union{QChain, Vector{QHamiltonian_S}})
     if param_data isa QChain
         J, Δ, ϵ = I_extract_param_H(param_data.H)[J_RET_IND:ϵ_RET_IND]
         
-        return (J, Δ, ϵ, param_data.N, (mean(J), mean(Δ), mean(ϵ)))
+        return (J, Δ, ϵ, (mean(J), mean(Δ), mean(ϵ)))
     else
         J, Δ, ϵ = I_extract_param_H(param_data)[J_RET_IND:ϵ_RET_IND]
 
-        return (J, Δ, ϵ, ndims(param_data), (mean(J), mean(Δ), mean(ϵ)))
+        return (J, Δ, ϵ, (mean(J), mean(Δ), mean(ϵ)))
     end
 end
