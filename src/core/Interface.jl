@@ -157,7 +157,7 @@ end
 
 function load_data(filename::String, col_headers::String...; ret_type::Symbol=:qchain)::Union{QChainData, DataFrame}
     data_table::DataFrame = read_from_csv(filename)
-
+    
     if isempty(col_headers)
         if ret_type == :dataframe
             return data_table
@@ -190,7 +190,14 @@ function load_parameters(filename::String, col_headers::String...; ret_type::Sym
 end
 
 function visualize(q_chain::QChain; type::Symbol=:graph, save::String="", plot_settings...)
-    # type = graph, bloch(?), animation(?)
+
+    if type == :graph
+        plot_chain(q_chain; filename=split(save, ".")[1], plot_settings...)
+    elseif type=:anim
+
+    else
+        throw("Invalid plot option!")
+    end
 
 end
 

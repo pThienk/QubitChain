@@ -9,4 +9,4 @@ TODO:
 
 -Optimize certain algorithm more
 
-version 0.75
+version 0.9.0
