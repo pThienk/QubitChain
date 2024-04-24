@@ -1,9 +1,11 @@
 module QubitChain
 
 using DifferentialEquations, LaTeXStrings, Unitful, UnitfulLatexify, CairoMakie, Printf, SpecialFunctions, Statistics, Distributions, BenchmarkTools,
-    RecipesBase, Random, CSV, DataFrames, StatsPlots
+    RecipesBase, Random, CSV, DataFrames
 
-export H_rand_model, simulate!, save_chain, visualize, initial_chain_model, set_solution_step_size, set_rand_seed, load_data, load_parameters
+export H_rand_model, simulate!, save_chain, visualize, initial_chain_model, set_solution_step_size, set_rand_seed, load_data, load_parameters, set_t_ticks,
+set_param_y_ticks
+
 export QHamiltonian_S, QubitData, QChain, QChainInitial, QChainData, QComponent, QOperator, QHamiltonian
 
 # Includes types used to hold simulation inputs and store results
@@ -34,6 +36,6 @@ end # module QubitChain
     ∘ time-order: 1e-3 (s)
     ∘ initial (0, 1.0) (z-eigenstates) --> results --> initial cond: (correlated), (entangled)
     - Write the save function (Save type: .csv)
-    - Write the ploting pipeline (basic) 
+    ∘ Write the ploting pipeline (basic) DONE
     
 =#

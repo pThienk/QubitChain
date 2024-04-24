@@ -107,7 +107,7 @@ function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Fl
 
     for i ∈ 1:2:2q_chain.N 
         push!(q_chain.qubits, QubitData(dot_1_raw = solution[i, :], dot_2_raw = solution[i+1, :], dot_1 = solution(t_inv(1):t_step:t_inv(2))[i, :],
-        dot_2 = solution(1:t_step:t_inv(2))[i+1, :], t_inv(1):t_step:t_inv(2)))
+        dot_2 = solution(t_inv(1):t_step:t_inv(2))[i+1, :], t_inv(1):t_step:t_inv(2)))
     end
     @info "Interpolated data for step size $t_step successfully stored in the QChain object"
 
@@ -117,7 +117,6 @@ end
 function save_chain(q_chain::QChain; save::String="", inc_raw_t::Bool=true)
     chain_col_headers::Vector{String} = []
     param_col_headers::Vector{String} = ["J", "delta", "epsilon"]
-    id::String = string(rand(1:1000000))
     filename_chain::String = ""
     filename_param::String = ""
     chain_data::Vector = []
@@ -144,9 +143,10 @@ function save_chain(q_chain::QChain; save::String="", inc_raw_t::Bool=true)
     end
 
     if save != ""
-        filename_chain = save * "qubit_chain_sim_id-" * id * ".csv"
-        filename_param = save * "qubit_chain_param_id-" * id * ".csv"
+        filename_chain = string(split(save)[1]) * "_qubits" * ".csv"
+        filename_param = string(split(save)[1]) * "_param" * ".csv"
     else
+        id::String = string(rand(1:1000000))
         filename_chain = "qubit_chain_sim_id-" * id * ".csv"
         filename_param = "qubit_chain_param_id-" * id * ".csv"
     end
@@ -189,11 +189,11 @@ function load_parameters(filename::String, col_headers::String...; ret_type::Sym
     end
 end
 
-function visualize(q_chain::QChain; type::Symbol=:graph, save::String="", plot_settings...)
+function visualize(q_chain::Union{QChain, QChainData}; type::Symbol=:graph, save::String="", plot_settings...)
 
     if type == :graph
-        plot_chain(q_chain; filename=split(save, ".")[1], plot_settings...)
-    elseif type=:anim
+        plot_chain(q_chain; filename=string(split(save, ".")[1]), plot_settings...)
+    elseif type == :anim
 
     else
         throw("Invalid plot option!")
@@ -207,4 +207,12 @@ end
 
 function set_rand_seed(seed::Int64)
     global rand_seed = seed
+end
+
+function set_t_ticks(tick::Float64)
+    global t_ticks = tick
+end
+
+function set_param_y_ticks(tick::Float64)
+    global param_y_ticks = tick
 end

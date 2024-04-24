@@ -26,8 +26,16 @@ const ϵ_RET_IND::Int64 = 6
 # Initial state types
 const CAT::Tuple{ComplexF64, ComplexF64} = (1/√2+ 1/√2im, 1/√2 - 1/√2im)
 
+const DOT_0::Tuple{ComplexF64, ComplexF64} = (1 + 0im, 0 + 0im)
+
+const DOT_1::Tuple{ComplexF64, ComplexF64} = (0 + 0im, 1 + 0im)
+
 # Global variables
 t_step::Float64 = 1e-2
+
+t_ticks::Float64 = 0.1
+
+param_y_ticks::Float64 = 0.05
 
 rand_seed::Int64 = 1876
 
@@ -70,7 +78,7 @@ function I_extract_param_H(c_hamiltonian::Vector{QHamiltonian_S})::Tuple
         push!(interaction_graphs, c_hamiltonian[i].interaction_graph)
     end
 
-    return (param_collection, ndims(c_hamiltonian), interaction_graphs, c_J, c_Δ, c_ϵ)
+    return (param_collection, length(c_hamiltonian), interaction_graphs, c_J, c_Δ, c_ϵ)
 end
 
 function encode_data(data::DataFrame, type::Symbol, col_headers::String...)::Union{QChainData, Tuple}
