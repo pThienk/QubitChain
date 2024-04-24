@@ -31,7 +31,7 @@ const DOT_0::Tuple{ComplexF64, ComplexF64} = (1 + 0im, 0 + 0im)
 const DOT_1::Tuple{ComplexF64, ComplexF64} = (0 + 0im, 1 + 0im)
 
 # Global variables
-t_step::Float64 = 1e-2
+t_step::Float64 = 1e-3
 
 t_ticks::Float64 = 0.1
 

@@ -143,8 +143,8 @@ function save_chain(q_chain::QChain; save::String="", inc_raw_t::Bool=true)
     end
 
     if save != ""
-        filename_chain = string(split(save)[1]) * "_qubits" * ".csv"
-        filename_param = string(split(save)[1]) * "_param" * ".csv"
+        filename_chain = string(split(save, ".")[1]) * "_qubits" * ".csv"
+        filename_param = string(split(save, ".")[1]) * "_param" * ".csv"
     else
         id::String = string(rand(1:1000000))
         filename_chain = "qubit_chain_sim_id-" * id * ".csv"

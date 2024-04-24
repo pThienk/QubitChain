@@ -7,29 +7,33 @@ function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", 
     qubits_plot_data::Vector{Tuple}, N::Int64, boundary_cond::Symbol = plot_obj_convert(chain_data, :graph)
     acc_plot_num::Int64 = 0
 
-    theme_latexfonts()
-
     qubit_figs::Vector{Figure} = []
-    param_fig::Figure = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size = (800, 700))
+    param_fig::Figure = Figure()
 
-    add_param_plots!(param_fig, param_to_scatter_arr(chain_data), boundary_cond)
+    with_theme(theme_latexfonts()) do 
+        
+        param_fig = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size = (800, 700))
+        
+        add_param_plots!(param_fig, param_to_scatter_arr(chain_data), boundary_cond)
 
-    for i ∈ 1:floor(Int64, N/10) 
-        push!(qubit_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
-        add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num)
-        acc_plot_num += 10
+        for i ∈ 1:floor(Int64, N/10) 
+            push!(qubit_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
+            add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, boundary_cond)
+            acc_plot_num += 10
+        end
+
+        if N % 10 > 0
+            push!(qubit_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
+            add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, boundary_cond, N % 10)
+        end
+
+        @info "Finished creating figures. \nDisplaying..."
+
+        # display_fig(param_fig)
+        # display_fig(qubit_figs)
+
     end
 
-    if N % 10 > 0
-        push!(qubit_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
-        add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, N % 10)
-    end
-
-    @info "Finished creating figures. \nDisplaying..."
-
-    # display_fig(param_fig)
-    # display_fig(qubit_figs)
-    
     if filename ≠ ""
         save(filename * "_param.png", param_fig)
 
@@ -39,9 +43,10 @@ function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", 
 
         @info "Saving completed."
     end
+    
 end
 
-function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int64, graph_num::Int64=10)
+function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int64, boundary_cond::Symbol, graph_num::Int64=10)
     
     w_grid = figure[1, 1] = GridLayout()
     for i ∈ 1:graph_num
@@ -72,7 +77,9 @@ function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int
     colgap!(w_grid, 10)
     rowgap!(w_grid, 15)
 
-    Label(w_grid[1, 1:2, Top()], "Dynamic of qubit $(plot_ind + 1)-$(plot_ind + graph_num)", valign=:bottom, font=:bold, padding=(0, 0, 5, 0))
+    Label(w_grid[1, 1:2, Top()], "Dynamic of qubit $(plot_ind + 1)-$(plot_ind + graph_num) with boundary condition: $(string(boundary_cond))",
+     valign=:bottom, font=:bold, padding=(0, 0, 5, 0))
+
     resize_to_layout!(figure)
 end
 
@@ -124,7 +131,8 @@ function add_param_plots!(figure::Figure, param_plot_data::Tuple, boundary_cond:
 
     rowgap!(grid, 7)
 
-    Label(grid[1, 1, Top(),], "Fluctuation of the J, Δ, ϵ Parameters", valign=:bottom, font=:bold, padding=(0, 0, 5, 0))
+    Label(grid[1, 1, Top(),], "Fluctuation of the J, Δ, ϵ Parameters with boundary condition: $(string(boundary_cond))",
+     valign=:bottom, font=:bold, padding=(0, 0, 5, 0))
 
     resize_to_layout!(figure)
 end
