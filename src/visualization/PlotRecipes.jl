@@ -42,15 +42,25 @@ function convert_to_bloch_points(qubit::QubitData)::Tuple
     return (x, y, z)
 end
 
-function param_to_scatter_arr(param_data::Union{QChain, Vector{QHamiltonian_S}})::Tuple
+function param_to_scatter_arr(param_data::Union{QChain, Vector{QHamiltonian_S}}; boundary_cond::Symbol=:open_ended)::Tuple
     
     if param_data isa QChain
         J, Δ, ϵ = I_extract_param_H(param_data.H)[J_RET_IND:ϵ_RET_IND]
         
-        return (J, Δ, ϵ, (mean(J), mean(Δ), mean(ϵ)))
+        if param_data.boundary_cond == :open_ended
+            return (J, Δ, ϵ, (mean(J[1:end-1]), mean(Δ), mean(ϵ)))
+        else
+            return (J, Δ, ϵ, (mean(J), mean(Δ), mean(ϵ)))
+        end
+        
     else
         J, Δ, ϵ = I_extract_param_H(param_data)[J_RET_IND:ϵ_RET_IND]
 
-        return (J, Δ, ϵ, (mean(J), mean(Δ), mean(ϵ)))
+        if boundary_cond == :open_ended
+            return (J, Δ, ϵ, (mean(J[1:end-1]), mean(Δ), mean(ϵ)))
+        else
+            return (J, Δ, ϵ, (mean(J), mean(Δ), mean(ϵ)))
+        end
+
     end
 end

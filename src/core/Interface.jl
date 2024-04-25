@@ -114,6 +114,15 @@ function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Fl
     @info "Simulation Complete"
 end
 
+"""
+    Save Chain
+
+    Saves data within a QChain object to a .csv file
+    Args: QChain q_chain
+    Optional Keyword Args: String save (if not provided, the function will use default names with randomly generated ids)
+                   Bool inc_raw_t (determines if the raw time from ODE Solver is included, default=true)
+
+"""
 function save_chain(q_chain::QChain; save::String="", inc_raw_t::Bool=true)
     chain_col_headers::Vector{String} = []
     param_col_headers::Vector{String} = ["J", "delta", "epsilon"]
@@ -155,6 +164,15 @@ function save_chain(q_chain::QChain; save::String="", inc_raw_t::Bool=true)
     write_to_csv(filename_param, param_col_headers, parse_chain(q_chain; op_type=:param_arr)...)
 end
 
+"""
+    Load Qubit Data
+
+    Loads qubit data from .csv file
+    Args: String filename
+    Optional Args: String... col_headers (let you choose specific columns by their names)
+    Optional Keyword Args: Symbol ret_type (two options are :qchain and :dataframe, default=:qchain)
+
+"""
 function load_data(filename::String, col_headers::String...; ret_type::Symbol=:qchain)::Union{QChainData, DataFrame}
     data_table::DataFrame = read_from_csv(filename)
     
@@ -175,6 +193,15 @@ function load_data(filename::String, col_headers::String...; ret_type::Symbol=:q
     end
 end
 
+"""
+    Load Parameters Data
+
+    Loads parameters data from .csv file
+    Args: String filename
+    Optional Args: String... col_headers (let you choose specific columns by their names)
+    Optional Keyword Args: Symbol ret_type (two options are :array and :dataframe, default=:array)
+
+"""
 function load_parameters(filename::String, col_headers::String...; ret_type::Symbol=:array)::Union{Tuple, DataFrame}
     data_table::DataFrame = read_from_csv(filename)
 
@@ -189,6 +216,16 @@ function load_parameters(filename::String, col_headers::String...; ret_type::Sym
     end
 end
 
+"""
+    Visualize
+
+    Visualizes either a QChain object or a QChainData object
+    Args: Union{QChain, QChainData} q_chain
+    Optional Keyword Args: Symbol type (type of visualization, two options are :graph and :anim (Not yet supported), default=:graph)
+                           String save (filename for saving visual data, not saved if left empty)
+                           plot_settings... (optional settings for the plotting functions)
+    
+"""
 function visualize(q_chain::Union{QChain, QChainData}; type::Symbol=:graph, save::String="", plot_settings...)
 
     if type == :graph
