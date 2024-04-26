@@ -24,11 +24,17 @@ const Δ_RET_IND::Int64 = 5
 const ϵ_RET_IND::Int64 = 6
 
 # Initial state types
-const CAT::Tuple{ComplexF64, ComplexF64} = (1/√2+ 1/√2im, 1/√2 - 1/√2im)
+const CAT::Tuple{ComplexF64, ComplexF64} = (1/√2, -1/√2)
 
-const DOT_0::Tuple{ComplexF64, ComplexF64} = (1 + 0im, 0 + 0im)
+const ANTI_CAT::Tuple{ComplexF64, ComplexF64} = (1/√2, 1/√2)
 
-const DOT_1::Tuple{ComplexF64, ComplexF64} = (0 + 0im, 1 + 0im)
+const Y_PLUS::Tuple{ComplexF64, ComplexF64} = (1/√2, 1/√2im)
+
+const Y_MINUS::Tuple{ComplexF64, ComplexF64} = (1/√2, -1/√2im)
+
+const DOT_0::Tuple{ComplexF64, ComplexF64} = (1, 0)
+
+const DOT_1::Tuple{ComplexF64, ComplexF64} = (0, 1)
 
 # Global variables
 t_step::Float64 = 1e-3

@@ -3,7 +3,7 @@
 # Includes the plot recipes
 include("PlotRecipes.jl")
 
-function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", settings...)
+function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", param_plot_settings=(), qubit_plot_settings=())
     qubits_plot_data::Vector{Tuple}, N::Int64, boundary_cond::Symbol = plot_obj_convert(chain_data, :graph)
     acc_plot_num::Int64 = 0
 
@@ -14,17 +14,17 @@ function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", 
         
         param_fig = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size = (800, 700))
         
-        add_param_plots!(param_fig, param_to_scatter_arr(chain_data), boundary_cond)
+        add_param_plots!(param_fig, param_to_scatter_arr(chain_data), boundary_cond; param_plot_settings...)
 
         for i ∈ 1:floor(Int64, N/10) 
             push!(qubit_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
-            add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, boundary_cond)
+            add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, boundary_cond; qubit_plot_settings...)
             acc_plot_num += 10
         end
 
         if N % 10 > 0
             push!(qubit_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
-            add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, boundary_cond, N % 10)
+            add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, boundary_cond, N % 10; qubit_plot_settings...)
         end
 
         @info "Finished creating figures. \nDisplaying..."
@@ -46,7 +46,7 @@ function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", 
     
 end
 
-function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int64, boundary_cond::Symbol, graph_num::Int64=10)
+function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int64, boundary_cond::Symbol, graph_num::Int64=10; settings...)
     
     w_grid = figure[1, 1] = GridLayout()
     for i ∈ 1:graph_num
@@ -65,8 +65,13 @@ function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int
             hidexdecorations!(ax_left, grid = false)
         end
 
-        xlims!(ax_left, low = 0)
-        ylims!(ax_left, low = 0)
+        if :adj_y_lim ∈ keys(settings) && settings[:adj_y_lim] == true
+            xlims!(ax_left, low = 0)
+            ylims!(ax_left, low = min([dot_1_data; dot_2_data]...))
+        else
+            xlims!(ax_left, low = 0)
+            ylims!(ax_left, low = 0)
+        end
 
         ax_left.xticks = 0:t_ticks:(max(t...) + t_ticks)
 
@@ -83,7 +88,7 @@ function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int
     resize_to_layout!(figure)
 end
 
-function add_param_plots!(figure::Figure, param_plot_data::Tuple, boundary_cond::Symbol)
+function add_param_plots!(figure::Figure, param_plot_data::Tuple, boundary_cond::Symbol; settings...)
     J, Δ, ϵ, (J_avg, Δ_avg, ϵ_avg) = param_plot_data
 
     grid = figure[1, 1] = GridLayout()
@@ -92,9 +97,9 @@ function add_param_plots!(figure::Figure, param_plot_data::Tuple, boundary_cond:
     Δ_grid = grid[2, 1] = GridLayout()
     ϵ_grid = grid[3, 1] = GridLayout()
 
-    ax_g1 = Axis(J_grid[1, 1], ylabel = "J (J)", ytickformat = "{:.4f}")
-    ax_g2 = Axis(Δ_grid[1, 1], ylabel = "Δ (J)", ytickformat = "{:.4f}")
-    ax_g3 = Axis(ϵ_grid[1, 1], ylabel = "ϵ (J)", xlabel = L"N", ytickformat = "{:.4f}")
+    ax_g1 = Axis(J_grid[1, 1], ylabel = "J (Hz in ħ unit)", ytickformat = "{:.4f}")
+    ax_g2 = Axis(Δ_grid[1, 1], ylabel = "Δ (Hz in ħ unit)", ytickformat = "{:.4f}")
+    ax_g3 = Axis(ϵ_grid[1, 1], ylabel = "ϵ (Hz in ħ unit)", xlabel = L"N", ytickformat = "{:.4f}")
 
     if boundary_cond == :open_ended
         J_points = Point2f.((1:length(J) |> collect)[1:end-1], J[1:end-1]) 

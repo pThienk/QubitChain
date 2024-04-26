@@ -8,6 +8,8 @@ set_param_y_ticks
 
 export QHamiltonian_S, QubitData, QChain, QChainInitial, QChainData, QComponent, QOperator, QHamiltonian
 
+export CAT, DOT_0, DOT_1, ANTI_CAT, Y_PLUS, Y_MINUS
+
 # Includes types used to hold simulation inputs and store results
 include("core/QubitTypes.jl")
 

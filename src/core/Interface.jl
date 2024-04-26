@@ -55,7 +55,7 @@ end
     Returns a QChainData encoded with the initial conditions for each qubits in the chain
         
 """
-function initial_chain_model(N::Int64, model_range::Tuple{UnitRange{Int64}, Tuple{ComplexF64, ComplexF64}}...)::QChainInitial
+function initial_chain_model(N::Int64, model_range::Tuple{AbstractRange{Int64}, Tuple{ComplexF64, ComplexF64}}...)::QChainInitial
     
     initial_cond_array::Vector{Tuple{ComplexF64, ComplexF64}} = []
 
@@ -79,7 +79,7 @@ end
     Data is not stored and the operation is aborted safely, if the simulation fails
 
 """
-function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Float64, Float64}; solver_settings::NamedTuple=(), ode_settings::NamedTuple=())
+function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Float64, Float64}; solver_settings=(), ode_settings=())
     chain_DEQ_prob!, param_array::Vector{Float64} = parse_chain(q_chain)
 
     @info "Built DEQ system successfully"
@@ -88,26 +88,21 @@ function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Fl
 
     ODE_prob = ODEProblem(chain_DEQ_prob!, initial_array, t_inv, param_array; ode_settings...)
 
-    @info """ DEQ problem created, ready to simulate chain! Proceed? (Type "yes" to Proceed) """
+    @info """ DEQ problem created, ready to simulate chain! Proceed? (Type "yes" to proceed) """
     if readline() ≠ "yes"
         @warn "Aborting simulation..."
         return
     end
-
-    try
-        @time solution = solve(ODE_prob; solver_settings...)
-    catch err
-        @error "Simulation Failed"
-        show(err)
-        return
-    end
+    
+    @time solution = solve(ODE_prob; solver_settings...)
+    @info "Simulated successfully!"
     
     q_chain.full_sol = solution
     @info "ODESolution object successfully stored in the QChain object"
 
     for i ∈ 1:2:2q_chain.N 
-        push!(q_chain.qubits, QubitData(dot_1_raw = solution[i, :], dot_2_raw = solution[i+1, :], dot_1 = solution(t_inv(1):t_step:t_inv(2))[i, :],
-        dot_2 = solution(t_inv(1):t_step:t_inv(2))[i+1, :], t_inv(1):t_step:t_inv(2)))
+        push!(q_chain.qubits, QubitData(dot_1_raw = solution[i, :], dot_2_raw = solution[i+1, :], dot_1 = solution(t_inv[1]:t_step:t_inv[2])[i, :],
+        dot_2 = solution(t_inv[1]:t_step:t_inv[2])[i+1, :], t = t_inv[1]:t_step:t_inv[2]))
     end
     @info "Interpolated data for step size $t_step successfully stored in the QChain object"
 
@@ -226,10 +221,10 @@ end
                            plot_settings... (optional settings for the plotting functions)
     
 """
-function visualize(q_chain::Union{QChain, QChainData}; type::Symbol=:graph, save::String="", plot_settings...)
+function visualize(q_chain::Union{QChain, QChainData}; type::Symbol=:graph, save::String="", param_plot_settings=(), qubit_plot_settings=())
 
     if type == :graph
-        plot_chain(q_chain; filename=string(split(save, ".")[1]), plot_settings...)
+        plot_chain(q_chain; filename=string(split(save, ".")[1]), param_plot_settings=param_plot_settings, qubit_plot_settings=qubit_plot_settings)
     elseif type == :anim
 
     else
