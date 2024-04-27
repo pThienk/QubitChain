@@ -53,27 +53,42 @@ function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int
 
         t::Vector{Float64}, dot_1_data::Vector{Float64}, dot_2_data::Vector{Float64} = plot_data[i + plot_ind]
 
+        if :disp_inv ∈ keys(settings)
+            δt = t[2] - t[1]
+
+            t = t[(floor(Int64, settings[:disp_inv][1]/δt) + 1):(floor(Int64, settings[:disp_inv][2]/δt) + 1)]
+            dot_1_data = dot_1_data[(floor(Int64, settings[:disp_inv][1]/δt) + 1):(floor(Int64, settings[:disp_inv][2]/δt) + 1)]
+            dot_2_data = dot_2_data[(floor(Int64, settings[:disp_inv][1]/δt) + 1):(floor(Int64, settings[:disp_inv][2]/δt) + 1)]
+        end
+
         grid_lvl = w_grid[i, 1:2] = GridLayout()
         grid_left = grid_lvl[1, 1] = GridLayout()
         grid_right = grid_lvl[1, 2] = GridLayout()
 
-        ax_left = Axis(grid_left[1, 1], xlabel = "t (ms)", ylabel = "qubit $(plot_ind + i)")
-        lines!(ax_left, t, dot_1_data, color=:blue, label="dot 0")
-        lines!(ax_left, t, dot_2_data, color=:red, label="dot 1")
+        ax_left = Axis(grid_left[1, 1], xlabel = L"t ($\times$ %$(latexify(time_unit)))", ylabel = "qubit $(plot_ind + i)")
+
+        if :plot_type ∈ keys(settings) && settings[:plot_type] == :only_dot0
+            lines!(ax_left, t, dot_1_data, color=:blue, label="dot 0")
+        elseif :plot_type ∈ keys(settings) && settings[:plot_type] == :only_dot1
+            lines!(ax_left, t, dot_2_data, color=:red, label="dot 1")
+        else
+            lines!(ax_left, t, dot_1_data, color=:blue, label="dot 0")
+            lines!(ax_left, t, dot_2_data, color=:red, label="dot 1")
+        end
 
         if i ≠ graph_num
             hidexdecorations!(ax_left, grid = false)
         end
 
         if :adj_y_lim ∈ keys(settings) && settings[:adj_y_lim] == true
-            xlims!(ax_left, low = 0)
+            xlims!(ax_left, low = t[1])
             ylims!(ax_left, low = min([dot_1_data; dot_2_data]...))
         else
-            xlims!(ax_left, low = 0)
+            xlims!(ax_left, low = t[1])
             ylims!(ax_left, low = 0)
         end
 
-        ax_left.xticks = 0:t_ticks:(max(t...) + t_ticks)
+        ax_left.xticks = t[1]:t_ticks:(max(t...) + t_ticks)
 
         Legend(grid_right[1, 1], ax_left)
         
@@ -83,7 +98,7 @@ function add_qubit_plot!(figure::Figure, plot_data::Vector{Tuple}, plot_ind::Int
     rowgap!(w_grid, 15)
 
     Label(w_grid[1, 1:2, Top()], "Dynamic of qubit $(plot_ind + 1)-$(plot_ind + graph_num) with boundary condition: $(string(boundary_cond))",
-     valign=:bottom, font=:bold, padding=(0, 0, 5, 0))
+     valign=:bottom, halign=:center, font=:bold, padding=(0, 0, 5, 0))
 
     resize_to_layout!(figure)
 end
@@ -136,8 +151,8 @@ function add_param_plots!(figure::Figure, param_plot_data::Tuple, boundary_cond:
 
     rowgap!(grid, 7)
 
-    Label(grid[1, 1, Top(),], "Fluctuation of the J, Δ, ϵ Parameters with boundary condition: $(string(boundary_cond))",
-     valign=:bottom, font=:bold, padding=(0, 0, 5, 0))
+    Label(grid[1, 1, Top()], "Fluctuation of the J, Δ, ϵ Parameters with boundary condition: $(string(boundary_cond))",
+     valign=:bottom, halign=:center, font=:bold, padding=(0, 0, 5, 0))
 
     resize_to_layout!(figure)
 end

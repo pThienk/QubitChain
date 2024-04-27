@@ -1,6 +1,6 @@
 module QubitChain
 
-using DifferentialEquations, LaTeXStrings, Unitful, UnitfulLatexify, CairoMakie, Printf, SpecialFunctions, Statistics, Distributions, BenchmarkTools,
+using DifferentialEquations, LaTeXStrings, Unitful, UnitfulLatexify, Latexify, CairoMakie, Printf, SpecialFunctions, Statistics, Distributions, BenchmarkTools,
     RecipesBase, Random, CSV, DataFrames
 
 export H_rand_model, simulate!, save_chain, visualize, initial_chain_model, set_solution_step_size, set_rand_seed, load_data, load_parameters, set_t_ticks,

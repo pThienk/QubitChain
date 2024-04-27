@@ -57,6 +57,8 @@ end
 """
 function initial_chain_model(N::Int64, model_range::Tuple{AbstractRange{Int64}, Tuple{ComplexF64, ComplexF64}}...)::QChainInitial
     
+    # Possible modification to include support for Vector{ComplexF64} or Vector{Tuple{ComplexF64, ComplexF64}} 
+
     initial_cond_array::Vector{Tuple{ComplexF64, ComplexF64}} = []
 
     for i ∈ 1:N 
@@ -86,7 +88,12 @@ function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Fl
 
     initial_array::Vector{ComplexF64} = I_extract_initial_cond(initial_cond) 
 
-    ODE_prob = ODEProblem(chain_DEQ_prob!, initial_array, t_inv, param_array; ode_settings...)
+    tspan::Tuple{Float64, Float64} = t_inv
+    if t_inv[1] > 0.0
+        tspan = (0.0, t_inv[2])
+    end
+
+    ODE_prob = ODEProblem(chain_DEQ_prob!, initial_array, tspan, param_array; ode_settings...)
 
     @info """ DEQ problem created, ready to simulate chain! Proceed? (Type "yes" to proceed) """
     if readline() ≠ "yes"
@@ -157,6 +164,7 @@ function save_chain(q_chain::QChain; save::String="", inc_raw_t::Bool=true)
 
     write_to_csv(filename_chain, chain_col_headers, chain_data...)
     write_to_csv(filename_param, param_col_headers, parse_chain(q_chain; op_type=:param_arr)...)
+    @info "Qubit dynamic data and parameters saved successfully!"
 end
 
 """

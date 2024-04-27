@@ -11,6 +11,10 @@ const h::Float64 = 6.62607015e-34 # J ∘ S
 
 const ħ::Float64 = 1.0 # h/2π J ∘ S
 
+# Units
+const time_unit = u"10^-16 * s"
+
+# Indexing
 const PARAM_RET_IND::Int64 = 1
 
 const DIM_RET_IND::Int64 = 2

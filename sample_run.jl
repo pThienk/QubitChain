@@ -12,7 +12,7 @@ interaction_model::BitMatrix = [1 0; 0 1]
 
 set_param_y_ticks(0.00075)
 
-set_solution_step_size(0.25)
+set_solution_step_size(0.05)
 
 set_t_ticks(200.0)
 
