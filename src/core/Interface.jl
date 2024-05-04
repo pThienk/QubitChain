@@ -81,7 +81,7 @@ end
     Data is not stored and the operation is aborted safely, if the simulation fails
 
 """
-function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Float64, Float64}; solver_settings=(), ode_settings=())
+function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Float64, Float64}; solver_settings=(), ode_settings=(), comf_bypass=false)
     chain_DEQ_prob!, param_array::Vector{Float64} = parse_chain(q_chain)
 
     @info "Built DEQ system successfully"
@@ -96,7 +96,7 @@ function simulate!(q_chain::QChain, initial_cond::QChainInitial, t_inv::Tuple{Fl
     ODE_prob = ODEProblem(chain_DEQ_prob!, initial_array, tspan, param_array; ode_settings...)
 
     @info """ DEQ problem created, ready to simulate chain! Proceed? (Type "yes" to proceed) """
-    if readline() ≠ "yes"
+    if !comf_bypass && readline() ≠ "yes"
         @warn "Aborting simulation..."
         return
     end
@@ -232,9 +232,11 @@ end
 function visualize(q_chain::Union{QChain, QChainData}; type::Symbol=:graph, save::String="", param_plot_settings=(), qubit_plot_settings=())
 
     if type == :graph
+        CairoMakie.activate!()
         plot_chain(q_chain; filename=string(split(save, ".")[1]), param_plot_settings=param_plot_settings, qubit_plot_settings=qubit_plot_settings)
     elseif type == :anim
-
+        GLMakie.activate!()
+        
     else
         throw("Invalid plot option!")
     end
@@ -255,4 +257,8 @@ end
 
 function set_param_y_ticks(tick::Float64)
     global param_y_ticks = tick
+end
+
+function set_t_unit(unit::Quantity)
+    global time_unit = unit
 end

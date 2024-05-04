@@ -3,6 +3,9 @@
 # Includes the plot recipes
 include("PlotRecipes.jl")
 
+# Includes the animation functions
+include("ChainAnim.jl")
+
 function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", param_plot_settings=(), qubit_plot_settings=())
     qubits_plot_data::Vector{Tuple}, N::Int64, boundary_cond::Symbol = plot_obj_convert(chain_data, :graph)
     acc_plot_num::Int64 = 0
@@ -155,10 +158,6 @@ function add_param_plots!(figure::Figure, param_plot_data::Tuple, boundary_cond:
      valign=:bottom, halign=:center, font=:bold, padding=(0, 0, 5, 0))
 
     resize_to_layout!(figure)
-end
-
-function bloch_chain_anim()
-
 end
 
 function display_fig(figure::Union{Figure, Vector{Figure}}) # Displaying Makie's images only works in Visual Studio Code

@@ -42,3 +42,8 @@ end
     t_raw::Vector{Float64} = []
     boundary_cond::Symbol = :open_ended
 end
+
+@kwdef struct DensityMatrix <: QOperator
+    components::Vector{Matrix{ComplexF64}} = []
+    t::Vector{Float64}
+end

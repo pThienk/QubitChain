@@ -11,9 +11,6 @@ const h::Float64 = 6.62607015e-34 # J ∘ S
 
 const ħ::Float64 = 1.0 # h/2π J ∘ S
 
-# Units
-const time_unit = u"10^-16 * s"
-
 # Indexing
 const PARAM_RET_IND::Int64 = 1
 
@@ -48,6 +45,10 @@ t_ticks::Float64 = 0.1
 param_y_ticks::Float64 = 0.05
 
 rand_seed::Int64 = 1876
+
+# Units
+time_unit = u"10^-16 * s"
+
 
 function parse_chain(q_chain::QChain; op_type::Symbol=:build_ode)::Tuple
     param_collection::Vector{Float64}, N::Int64, interaction_graphs::Vector{BitMatrix}, c_J::Vector{Float64}, c_Δ::Vector{Float64},

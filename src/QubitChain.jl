@@ -1,10 +1,10 @@
 module QubitChain
 
-using DifferentialEquations, LaTeXStrings, Unitful, UnitfulLatexify, Latexify, CairoMakie, Printf, SpecialFunctions, Statistics, Distributions, BenchmarkTools,
-    RecipesBase, Random, CSV, DataFrames
+using DifferentialEquations, LaTeXStrings, Unitful, UnitfulLatexify, Latexify, CairoMakie, GLMakie, Printf, SpecialFunctions, Statistics, Distributions, BenchmarkTools,
+    RecipesBase, Random, CSV, DataFrames, LinearAlgebra
 
 export H_rand_model, simulate!, save_chain, visualize, initial_chain_model, set_solution_step_size, set_rand_seed, load_data, load_parameters, set_t_ticks,
-set_param_y_ticks
+set_param_y_ticks, set_t_unit
 
 export QHamiltonian_S, QubitData, QChain, QChainInitial, QChainData, QComponent, QOperator, QHamiltonian
 
@@ -18,6 +18,9 @@ include("core/CoreMacros.jl")
 
 # Includes the core components of the program: DEQsolver, Qubit Chain Parser, etc.
 include("core/Core.jl")
+
+# Includes the analytical calculation function calls
+include("core/Calculations.jl")
 
 # Includes the CSV file reader/writer components
 include("IO/CSVFile.jl")
@@ -40,4 +43,14 @@ end # module QubitChain
     - Write the save function (Save type: .csv)
     ∘ Write the ploting pipeline (basic) DONE
     
+=#
+
+#=
+Research Notes:
+
+- Calculate purity by Tr(ρ^2); ρ ≡ trace out state i (ens+emble avg for all states other than i)
+- Plot the purity for each qubit for some fluctuation number (shots=10 ?)
+- Write software for doing so!!!
+- Animation stuff (low priority)
+
 =#
