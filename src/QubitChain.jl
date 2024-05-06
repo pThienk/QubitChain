@@ -4,7 +4,7 @@ using DifferentialEquations, LaTeXStrings, Unitful, UnitfulLatexify, Latexify, C
     RecipesBase, Random, CSV, DataFrames, LinearAlgebra
 
 export H_rand_model, simulate!, save_chain, visualize, initial_chain_model, set_solution_step_size, set_rand_seed, load_data, load_parameters, set_t_ticks,
-set_param_y_ticks, set_t_unit
+set_param_y_ticks, set_t_unit, plot_purities
 
 export QHamiltonian_S, QubitData, QChain, QChainInitial, QChainData, QComponent, QOperator, QHamiltonian
 

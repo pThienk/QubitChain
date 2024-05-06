@@ -8,6 +8,10 @@ function build_DEQ_sys(N::Int64, boundary_cond::Symbol, interaction_graphs::Vect
     # Logging system
  end
 
+ macro debugging(value)
+    return :(esc(println($value)); exit())
+ end
+
 """
     ***Internal Function: Not for end user***
 """

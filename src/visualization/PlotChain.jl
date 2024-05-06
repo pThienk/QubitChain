@@ -30,7 +30,7 @@ function plot_chain(chain_data::Union{QChain, QChainData}; filename::String="", 
             add_qubit_plot!(qubit_figs[i], qubits_plot_data, acc_plot_num, boundary_cond, N % 10; qubit_plot_settings...)
         end
 
-        @info "Finished creating figures. \nDisplaying..."
+        @info "Finished creating qubit and parameter plots. \nDisplaying..."
 
         # display_fig(param_fig)
         # display_fig(qubit_figs)
@@ -160,7 +160,124 @@ function add_param_plots!(figure::Figure, param_plot_data::Tuple, boundary_cond:
     resize_to_layout!(figure)
 end
 
-function display_fig(figure::Union{Figure, Vector{Figure}}) # Displaying Makie's images only works in Visual Studio Code
+function plot_purities(qchain_dataset::Union{QChain, QChainData}...; led_labels::Tuple{String, Vector}, purity_states::Tuple{Tuple, Tuple}=(ANTI_CAT, CAT), filename::String="", purities_plot_settings=())
+    
+    if isempty(qchain_dataset)
+        throw("Plot data cannot be empty!")
+    end
+
+    N::Int64 = qchain_dataset[1].N
+    boundary_cond::Symbol = qchain_dataset[1].boundary_cond
+
+    chain_density_matrices::Vector{Vector{DensityMatrix}} = []
+    for qchain ∈ qchain_dataset
+        push!(chain_density_matrices, cal_density_matrix(qchain, purity_states))
+    end
+
+    purities = cal_purity(chain_density_matrices...)
+
+    purity_labels::Vector{String} = []
+    for value ∈ led_labels[2] 
+        push!(purity_labels, led_labels[1] * " = " * "$(round(value; digits=4))")
+    end
+
+    acc_plot_num::Int64 = 0
+
+    purities_figs::Vector{Figure} = []
+
+    with_theme(theme_latexfonts()) do 
+        
+        for i ∈ 1:floor(Int64, N/10) 
+            push!(purities_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
+            add_purity_plot!(purities_figs[i], purities, acc_plot_num, boundary_cond, purity_labels; purities_plot_settings...)
+            acc_plot_num += 10
+        end
+
+        if N % 10 > 0
+            push!(purities_figs, Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size=(800, 1000)))
+            add_purity_plot!(purities_figs[i], purities, acc_plot_num, boundary_cond, purity_labels, N % 10; purities_plot_settings...)
+        end
+
+        @info "Finished creating purity plots. \nDisplaying..."
+
+        # display_fig(param_fig)
+        # display_fig(qubit_figs)
+
+    end
+
+    if filename ≠ ""
+
+        for i ∈ eachindex(purities_figs)
+            save(filename * "_purities_" * string(('a' + i - 1)) * ".png", purities_figs[i])
+        end
+
+        @info "Saving completed."
+    end
+
+end
+
+function add_purity_plot!(figure::Figure, purity_plot_data::Vector{Vector{Tuple{Vector{Float64}, Vector{Float64}}}}, plot_ind::Int64, boundary_cond::Symbol, purity_labels::Vector{String},
+     graph_num::Int64=10; settings...)
+
+    w_grid = figure[1, 1] = GridLayout()
+    for i ∈ 1:graph_num 
+
+        qubit_data::Vector{Tuple} = purity_plot_data[i + plot_ind]
+
+        grid_lvl = w_grid[i, 1:2] = GridLayout()
+        grid_left = grid_lvl[1, 1] = GridLayout()
+        grid_right = grid_lvl[1, 2] = GridLayout()
+
+        ax_left = Axis(grid_left[1, 1], xlabel = L"t ($\times$ %$(latexify(time_unit)))", ylabel = "qubit $(plot_ind + i)")
+
+        t_out::Vector{Float64} = []
+
+        with_theme(Theme(
+                palette = (color=1:10, colormap=(:viridis, 0.5))
+            )) do 
+                for j ∈ eachindex(qubit_data)
+
+                    purity::Vector{Float64}, t::Vector{Float64} = qubit_data[j]
+                    if :disp_inv ∈ keys(settings)
+                        δt = t[2] - t[1]
+        
+                        t = t[(floor(Int64, settings[:disp_inv][1]/δt) + 1):(floor(Int64, settings[:disp_inv][2]/δt) + 1)]
+                        purity = purity[(floor(Int64, settings[:disp_inv][1]/δt) + 1):(floor(Int64, settings[:disp_inv][2]/δt) + 1)]
+                    end
+                
+                    lines!(ax_left, t, purity, label=purity_labels[j])
+                    t_out = t
+                end
+            end
+
+        if i ≠ graph_num
+            hidexdecorations!(ax_left, grid = false)
+        end
+
+        if :adj_y_lims ∈ keys(settings)
+            xlims!(ax_left, low = t_out[1])
+            ylims!(ax_left, low = settings[:adj_y_lims][1], high = settings[:adj_y_lims][2])
+        else
+            xlims!(ax_left, low = t_out[1])
+            ylims!(ax_left, low = 0.5, high = 1.2)
+        end
+
+        ax_left.xticks = t_out[1]:t_ticks:(max(t_out...) + t_ticks)
+
+        Legend(grid_right[1, 1], ax_left)
+
+    end
+    
+    colgap!(w_grid, 10)
+    rowgap!(w_grid, 15)
+
+    Label(w_grid[1, 1:2, Top()], "Purities of qubit $(plot_ind + 1)-$(plot_ind + graph_num) with boundary condition: $(string(boundary_cond))",
+     valign=:bottom, halign=:center, font=:bold, padding=(0, 0, 5, 0))
+
+    resize_to_layout!(figure)
+end
+
+function display_fig(figure::Union{Figure, Vector{Figure}}) # Displaying Makie's images, only works in Visual Studio Code
     
     if figure isa Vector
         for fig ∈ figure 

@@ -28,23 +28,26 @@ end
     Note that purity ≡ tr(ρ^2)
 
 """
-function cal_purity(density_matrices::DensityMatrix...)::Vector{Vector{Float64}}
+function cal_purity(density_matrices::Vector{DensityMatrix}...)::Vector{Vector{Tuple{Vector{Float64}, Vector{Float64}}}}
 
     if isempty(density_matrices)
         throw("The density matrix cannot be null!")
     end
 
-    purities::Vector{Vector{Float64}} = []
+    purities::Vector{Vector{Tuple{Vector{Float64}, Vector{Float64}}}} = []
 
-    for i ∈ eachindex(density_matrices)
+    for i ∈ eachindex(density_matrices[1])
 
-        purity::Vector{Float64} = []
-        for j ∈ eachindex(density_matrices[i].t) 
-            push!(purity, Float64( tr(density_matrices[i].components[j] ^ 2) ))
-    
+        chain_purities::Vector{Tuple{Vector{Float64}, Vector{Float64}}} = []
+        for j ∈ eachindex(density_matrices)
+           
+            purity::Vector{Float64} = real.( tr.(density_matrices[j][i].components .^ 2) )
+            
+            push!(chain_purities, (purity, density_matrices[j][i].t))
+
         end
 
-        push!(purities, purity)
+        push!(purities, chain_purities)
     end
     
     return purities

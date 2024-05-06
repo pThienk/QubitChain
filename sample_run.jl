@@ -26,15 +26,9 @@ H = H_rand_model(J0, Δ0, ϵ0, N, boundary_cond, interaction_model; J_fluc=0.0, 
 
 initial_cond = initial_chain_model(N, (1:N, ANTI_CAT))
 
-#for i ∈ 1:round_num 
-    H[1].J = 0.85 # (rand(MersenneTwister(123456789)) * 2.0 / 5.0) + 0.8
+q_chain::QChain = QChain(N = N, boundary_cond = boundary_cond, H = H)
+simulate!(q_chain, initial_cond, tspan; solver_settings=(reltol=1e-6,), comf_bypass=true)
 
-    q_chain::QChain = QChain(N = N, boundary_cond = boundary_cond, H = H)
-    simulate!(q_chain, initial_cond, tspan; solver_settings=(reltol=1e-6,), comf_bypass=true)
+visualize(q_chain; save="Sample_Run.png", qubit_plot_settings=(adj_y_lim=true,))
 
-    visualize(q_chain; save="Sample_Run.png", qubit_plot_settings=(adj_y_lim=true,))
-#end
-
-#save_chain(q_chain; save="sample_save.csv")
-
-# C:/Users/Porpun/OneDrive/Desktop/QubitChain/visuals/1_FLUC-PARAM_CAT_10-SHOT_R-0008-0012/1_fluc-param_cat_$(i).png
+save_chain(q_chain; save="sample_save.csv")
