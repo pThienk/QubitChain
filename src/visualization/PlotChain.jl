@@ -277,6 +277,85 @@ function add_purity_plot!(figure::Figure, purity_plot_data::Vector{Vector{Tuple{
     resize_to_layout!(figure)
 end
 
+function plot_system_purity(qchain_dataset::Union{QChain, QChainData}...; led_labels::Tuple{String, Vector}, purity_states::Tuple{Tuple, Tuple}=(ANTI_CAT, CAT),
+     filename::String="", system_purity_plot_settings=())
+    
+    if isempty(qchain_dataset)
+        throw("Plot data cannot be empty!")
+    end
+
+    boundary_cond::Symbol = qchain_dataset[1].boundary_cond
+
+    purity_data::Vector{Tuple{Vector{Float64}, Vector{Float64}}} = []
+    for i ∈ eachindex(qchain_dataset) 
+        push!(purity_data, cal_system_purity(qchain_dataset[i], purity_states))
+    end
+
+    purity_labels::Vector{String} = []
+    for value ∈ led_labels[2] 
+        push!(purity_labels, led_labels[1] * " = " * "$(round(value; digits=4))")
+    end
+
+    figure::Figure = Figure()
+
+    with_theme(theme_latexfonts()) do 
+
+        figure = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), size = (800, 400))
+        plot_grid = figure[1, 1] = GridLayout()
+        grid_left = plot_grid[1, 1] = GridLayout()
+        grid_right = plot_grid[1, 2] = GridLayout()
+
+        plot_axis = Axis(grid_left[1, 1], xlabel = L"t ($\times$ %$(latexify(time_unit)))", ylabel = "System Purity")
+
+        t_out::Vector{Float64} = []
+        with_theme(Theme(
+                palette = (color=1:10, colormap=(:viridis, 0.5))
+            )) do
+                for i ∈ eachindex(purity_data) 
+            
+                    purity::Vector{Float64}, t::Vector{Float64} = purity_data[i]
+            
+                    if :disp_inv ∈ keys(system_purity_plot_settings)
+                        δt = t[2] - t[1]
+
+                        t = t[(floor(Int64, settings[:disp_inv][1]/δt) + 1):(floor(Int64, settings[:disp_inv][2]/δt) + 1)]
+                        purity = purity[(floor(Int64, settings[:disp_inv][1]/δt) + 1):(floor(Int64, settings[:disp_inv][2]/δt) + 1)]
+                    end
+
+             
+                    lines!(plot_axis, t, purity, label=purity_labels[i])
+                    t_out = t
+                end
+        end
+
+        if :adj_y_lims ∈ keys(system_purity_plot_settings)
+            xlims!(plot_axis, low = t_out[1])
+            ylims!(plot_axis, low = system_purity_plot_settings[:adj_y_lims][1], high = system_purity_plot_settings[:adj_y_lims][2])
+        else
+            xlims!(plot_axis, low = t_out[1])
+            ylims!(plot_axis, low = 0.5, high = 1.2)
+        end
+
+        plot_axis.xticks = t_out[1]:t_ticks:(max(t_out...) + t_ticks)
+
+        Legend(grid_right[1, 1], plot_axis)
+    end
+
+    colgap!(plot_grid, 10)
+
+    Label(plot_grid[1, 1:2, Top()], "Purity of the Qubit System with Boundary Condition: $(string(boundary_cond))",
+     valign=:bottom, halign=:center, font=:bold, padding=(0, 0, 5, 0))
+
+    resize_to_layout!(figure)
+
+    if filename ≠ ""
+
+        save(filename * "_system-purity" * ".png", figure)    
+
+        @info "Saving completed."
+    end
+end
+
 function display_fig(figure::Union{Figure, Vector{Figure}}) # Displaying Makie's images, only works in Visual Studio Code
     
     if figure isa Vector

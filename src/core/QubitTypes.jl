@@ -45,5 +45,5 @@ end
 
 @kwdef struct DensityMatrix <: QOperator
     components::Vector{Matrix{ComplexF64}} = []
-    t::Vector{Float64}
+    t::Vector{Float64} = []
 end
